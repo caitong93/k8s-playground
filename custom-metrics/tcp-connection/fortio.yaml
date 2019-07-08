@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: fortio
+  name: fortio-deploy
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: fortio
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fortio
+    spec:
+      containers:
+      - image: fortio/fortio:latest_release
+        imagePullPolicy: Always
+        name: fortio
+        ports:
+        - containerPort: 8080
+          name: http-fortio
+          protocol: TCP
+        - containerPort: 8079
+          name: grpc-ping
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            memory: 20Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fortio
+  name: fortio
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: fortio

@@ -114,10 +114,10 @@ data:
         regex: __meta_kubernetes_service_label_(.+)
       - source_labels: [__meta_kubernetes_namespace]
         action: replace
-        target_label: kubernetes_namespace
-      - source_labels: [__meta_kubernetes_service_name]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
         action: replace
-        target_label: kubernetes_name
+        target_label: pod
 
     - job_name: 'kubernetes-pods'
       kubernetes_sd_configs:
@@ -143,7 +143,7 @@ data:
       - role: endpoints
 
       relabel_configs:
-      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_cluster-monitoring]
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_clusterstate]
         action: keep
         regex: true
       - action: labelmap
@@ -152,6 +152,23 @@ kind: ConfigMap
 metadata:
   name: prometheus-config
   namespace: monitoring
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: prometheus
+  name: prometheus
+  namespace: monitoring
+spec:
+  ports:
+  - name: http
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    k8s-app: prometheus
+  type: ClusterIP
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole

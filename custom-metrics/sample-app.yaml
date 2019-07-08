@@ -51,5 +51,7 @@ spec:
   metrics:
   - type: Pods
     pods:
-      metricName: http_requests
-      targetAverageValue: 500m
+      #metricName: http_requests
+      #targetAverageValue: 500m
+      metricName: pod_tcp_connections
+      targetAverageValue: 10

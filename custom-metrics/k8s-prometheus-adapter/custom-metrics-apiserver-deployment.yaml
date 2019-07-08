@@ -23,7 +23,7 @@ spec:
         args:
           - --secure-port=6443
           - --logtostderr=true
-          - --prometheus-url=http://prometheus.default.svc:9090/
+          - --prometheus-url=http://prometheus:9090/
           - --metrics-relist-interval=1m
           - --v=6
           - --config=/etc/adapter/config.yaml
@@ -38,6 +38,10 @@ spec:
           readOnly: true
         - mountPath: /tmp
           name: tmp-vol
+        # Fix permission bug
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
       volumes:
       - name: volume-serving-cert
         secret:
